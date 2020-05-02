@@ -26,7 +26,7 @@ function init() {
     const controls = new THREE.OrbitControls(camera);
     // 滑らかにカメラコントローラーを制御する
     controls.enableDamping = true;
-    controls.dampingFactor = 0.2;
+    controls.dampingFactor = 1;
 
     // 平行光源
     const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
