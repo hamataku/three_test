@@ -20,6 +20,13 @@
         camera.position.set(0, 0, 0.1);
         scene.add(camera);
 
+        const geometry2 = new THREE.BoxGeometry( 1, 1, 1 );
+        const material2 = new THREE.MeshNormalMaterial( {color: 0xFF0000} );
+        const cube = new THREE.Mesh( geometry2, material2 );
+        const theta = 90
+        cube.position.set(5*Math.sin(theta*Math.PI/180),5*Math.cos(theta*Math.PI/180),0)
+        scene.add( cube );
+
         var geometry = new THREE.SphereGeometry(5, 60, 40);
         geometry.scale(-1, 1, 1);
 
@@ -76,7 +83,7 @@
         controls.rotateSpeed = 0.03;
 
         controls.zoomSpeed=3.0;
-        controls.minDistance=3;
+        controls.minDistance=1;
         controls.maxDistance=5;
         // パン操作禁止
         controls.noPan = true;
@@ -85,8 +92,7 @@
     function render() {
         requestAnimationFrame(render);
         renderer.render(scene, camera);
-        controls.minDistance=3;
-        controls.maxDistance=5;
+
         controls.update();
     }
 
