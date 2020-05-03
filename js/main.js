@@ -73,16 +73,20 @@
         // 視点操作のイージングの値
         controls.dampingFactor = 0.1;
         // 視点変更の速さ
-        controls.rotateSpeed = 0.1;
-        // ズーム禁止
-        controls.noZoom = false;
+        controls.rotateSpeed = 0.06;
+
+        controls.zoomSpeed=3.0;
+        controls.minDistance=3;
+        controls.maxDistance=5;
         // パン操作禁止
-        controls.noPan = false;
+        controls.noPan = true;
     }
 
     function render() {
         requestAnimationFrame(render);
         renderer.render(scene, camera);
+        controls.minDistance=3;
+        controls.maxDistance=5;
         controls.update();
     }
 

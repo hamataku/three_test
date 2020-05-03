@@ -253,6 +253,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// current position in spherical coordinates
 	var spherical = new THREE.Spherical();
+
 	var sphericalDelta = new THREE.Spherical();
 
 	var scale = 1;
