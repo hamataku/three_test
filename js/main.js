@@ -1,113 +1,91 @@
-// ページの読み込みを待つ
-window.addEventListener('load', init);
+(function () {
 
-function init() {
-    let rot = 0; // 角度
-    let mouseX = 0; // マウス座標
-    // サイズを指定
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    //windowサイズを画面サイズに合わせる
+    var width = window.innerWidth;
+    var height = window.innerHeight;
 
-    // レンダラーを作成
-    const renderer = new THREE.WebGLRenderer({
-        canvas: document.querySelector('#myCanvas')
-    });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(width, height);
+    var element;
+    var scene, camera, renderer, controls, texture;
 
-    // シーンを作成
-    const scene = new THREE.Scene();
+    function init() {
 
-    // カメラを作成
-    const camera = new THREE.PerspectiveCamera(45, width / height);
-    camera.position.set(0, 0, 1000);
+        // シーンの作成
+        scene = new THREE.Scene();
 
-    // カメラコントローラーを作成
-    const controls = new THREE.OrbitControls(camera);
-    // 滑らかにカメラコントローラーを制御する
-    controls.enableDamping = true;
-    controls.dampingFactor = 1;
+        // リサイズイベントを検知してリサイズ処理を実行
+        window.addEventListener("resize", handleResize, false);
 
-    // 平行光源
-    const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
-    directionalLight.position.set(1, 1, 1);
-    // シーンに追加
-    scene.add(directionalLight);
-    // 平行光源2
-    const directionalLight2 = new THREE.DirectionalLight(0xFFFFFF);
-    directionalLight2.position.set(0, 1, 1);
-    // シーンに追加
-    scene.add(directionalLight2);
+        // カメラの作成
+        camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+        camera.position.set(0, 0, 0.1);
+        scene.add(camera);
 
-    // マテリアルにテクスチャーを設定
-    const material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load('img/earthmap1k.jpg'),
-        side: THREE.DoubleSide
-    });
+        var geometry = new THREE.SphereGeometry(5, 60, 40);
+        geometry.scale(-1, 1, 1);
 
-    // 球体を作成
-    const geometry = new THREE.SphereGeometry(300, 30, 30);
-
-    // 形状とマテリアルからメッシュを作成します
-    const earthMesh = new THREE.Mesh(geometry, material);
-    // シーンにメッシュを追加します
-    scene.add(earthMesh);
-
-    // 星屑を作成します (カメラの動きをわかりやすくするため)
-    createStarField();
-
-    function createStarField() {
-        // 形状データを作成
-        const geometry = new THREE.Geometry();
-        for (let i = 0; i < 1000; i++) {
-            geometry.vertices.push(
-                new THREE.Vector3(
-                    3000 * (Math.random() - 0.5),
-                    3000 * (Math.random() - 0.5),
-                    3000 * (Math.random() - 0.5)
-                )
-            );
-        }
-        // マテリアルを作成
-        const material = new THREE.PointsMaterial({
-            size: 10,
-            color: 0xffffff
+        //　マテリアルの作成
+        var material = new THREE.MeshBasicMaterial({
+            // 画像をテクスチャーとして読み込み
+            map: THREE.ImageUtils.loadTexture(
+                "img/garage.jpg"
+            )
         });
 
-        // 物体を作成
-        const mesh = new THREE.Points(geometry, material);
-        scene.add(mesh);
-    }
+        // 球体(形状)にマテリアル(質感)を貼り付けて物体を作成
+        sphere = new THREE.Mesh(geometry, material);
 
+        //　シーンに追加
+        scene.add(sphere);
 
-
-    tick();
-
-    // 毎フレーム時に実行されるループイベントです
-    function tick() {
-        // レンダリング
-        renderer.render(scene, camera);
-        requestAnimationFrame(tick);
-    }
-
-    // 初期化のために実行
-    onResize();
-    // リサイズイベント発生時に実行
-    window.addEventListener('resize', onResize);
-
-    function onResize() {
-        // サイズを取得
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        // レンダラーのサイズを調整する
-        renderer.setPixelRatio(window.devicePixelRatio);
+        // レンダラーの作成
+        renderer = new THREE.WebGLRenderer();
+        // レンダラーをwindowサイズに合わせる
         renderer.setSize(width, height);
+        renderer.setClearColor({color: 0x000000});
+        element = renderer.domElement;
+        document.getElementById("stage").appendChild(element);
+        renderer.render(scene, camera);
 
-        // カメラのアスペクト比を正す
-        camera.aspect = width / height;
+        // パソコンの場合
+        // マウスドラッグで視点操作を可能にする
+        setOrbitControls();
+
+        render();
+    }
+
+    // リサイズ処理
+    function handleResize() {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
     }
 
+    function setOrbitControls() {
+        // パソコン閲覧時マウスドラッグで視点操作する
+        controls = new THREE.OrbitControls(camera, element);
+        controls.target.set(
+            camera.position.x + 0.15,
+            camera.position.y,
+            camera.position.z
+        );
+        // 視点操作のイージングをONにする
+        controls.enableDamping = true;
+        // 視点操作のイージングの値
+        controls.dampingFactor = 0.1;
+        // 視点変更の速さ
+        controls.rotateSpeed = 0.1;
+        // ズーム禁止
+        controls.noZoom = false;
+        // パン操作禁止
+        controls.noPan = false;
+    }
 
-}
+    function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+        controls.update();
+    }
+
+    window.addEventListener("load", init, false);
+
+})();
